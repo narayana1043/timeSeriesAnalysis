@@ -1,7 +1,7 @@
 ---
-title: 'Home Work 4'
+title: 'Spectral Estimation Time Series'
 author: "Veera Marni"
-output: pdf_document
+output: html_document
 ---
 
 ```{r setup, include=FALSE}

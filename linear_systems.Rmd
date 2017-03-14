@@ -1,6 +1,6 @@
 ---
-title: "HW-2 Time Series"
-output: pdf_document
+title: "Linear Systems Time Series"
+output: html_document
 ---
 
 \begin{center}

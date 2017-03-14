@@ -1,0 +1,110 @@
+---
+title: 'Home Work 4'
+author: "Veera Marni"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+##Question 2
+
+```{r}
+CBEData= read.table("~/gdrive/IUBCourseWork/TimeSeries/Introductory Time Series with R-Paul S.P. Cowpertwait and Andrew Viggo Metcalfe/data/cbe.dat", header = T)
+
+# using only a sample of the total data -- Electricity
+attach(CBEData)
+
+elec = CBEData$elec - mean(CBEData$elec)
+choc = CBEData$choc - mean(CBEData$choc)
+ec = cbind(elec, choc)
+N = 396
+
+# FFT
+PlotFFT <- function(values){
+  values_fft = fft(values)
+  n2 = 1:(N/2)
+  values_fft = values_fft[n2]
+  values_fft = abs(values_fft)^2
+  values_fft = values_fft/sum(values_fft)
+  values_fft = values_fft/sum(values_fft)
+  plot(n2/N,values_fft,type="l",xlab="Frequency", ylab = "Spectrum")
+  # print(which(values_fft==max(values_fft)))
+}
+
+# Dtrend
+DT<- function(values,f)  {
+  time <- 1:length(values)
+  s1 = cos(2*pi*time*(f))
+  s2 = sin(2*pi*time*(f))
+  T2 = time*time
+  reg <- lm(values ~ time+T2+s1+s2)
+  return (reg)
+}
+
+```
+
+
+Before detrending the 2 measures electricity and chocolate
+```{r}
+PlotFFT(elec)
+PlotFFT(choc)
+```
+
+### Electricity
+
+After detrending electricity for frequencies = {2/396, 33/396}. We can notice the magnitudes falling in spectrum
+```{r}
+elec_reg <- DT(elec, f=(2/N))
+PlotFFT(elec_reg$residuals)
+elec_reg <- DT(elec_reg$residuals, f=(33/N))
+PlotFFT(elec_reg$residuals)
+
+```
+
+### Chocolate
+
+After detrending chocolate for frequencies = {2/396, 33/396}. We can notice the magnitudes falling in spectrum
+```{r}
+choc_reg <- DT(choc, f=(2/N))
+PlotFFT(choc_reg$residuals)
+choc_reg <- DT(choc_reg$residuals, f=(33/N))
+PlotFFT(choc_reg$residuals)
+
+```
+
+
+## Question 3
+
+### Electricity
+without window
+```{r}
+spec.pgram(elec_reg$residuals,log="no")
+```
+
+with window size = 7 :Reason: I choose 7 as window size as it removes the the noise(power of unwanted frequencies) and still retains the power of important frequencies in the plot
+```{r}
+spec.pgram(elec_reg$residuals,spans=c(7,7),log="no")
+```
+
+### Chocolate
+without window
+```{r}
+spec.pgram(choc_reg$residuals,log="no")
+```
+
+with window size = 10 :Reason: I choose 10 as window size as it removes the the noise(power of unwanted frequencies) and still retains the power of important frequencies in the plot
+```{r}
+spec.pgram(choc_reg$residuals,spans=c(10,10),log="no")
+```
+
+## Question 4
+
+
+```{r}
+X=cbind(elec, choc)
+H = spectrum(X,spans=c(20,20),plot.type="coherency")
+```
+In the above graph, the coherence varies with various frequencies. The blue lines show the standard deviation of coherence. Coherence is high at various frequencies which means that there are varoius sinusoids that built this signal. The standard deviation seems to be similar atmost of the frequencies.
